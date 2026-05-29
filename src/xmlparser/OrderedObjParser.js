@@ -64,7 +64,7 @@ function addExternalEntities(externalEntities){
   for (let i = 0; i < entKeys.length; i++) {
     const ent = entKeys[i];
     this.lastEntities[ent] = {
-       regex: new RegExp("&"+ent+";","g"),
+       match: getEntityMatch(ent),
        val : externalEntities[ent]
     }
   }
@@ -414,11 +414,11 @@ const replaceEntitiesValue = function(val){
   if(this.options.processEntities){
     for(let entityName in this.docTypeEntities){
       const entity = this.docTypeEntities[entityName];
-      val = val.replace( entity.regx, entity.val);
+      val = replaceEntityValue(val, entity);
     }
     for(let entityName in this.lastEntities){
       const entity = this.lastEntities[entityName];
-      val = val.replace( entity.regex, entity.val);
+      val = replaceEntityValue(val, entity);
     }
     if(this.options.htmlEntities){
       for(let entityName in this.htmlEntities){
@@ -430,6 +430,25 @@ const replaceEntitiesValue = function(val){
   }
   return val;
 }
+
+function getEntityMatch(name){
+  return `&${name};`;
+}
+
+function replaceEntityValue(value, entity){
+  let replacedValue;
+  if(entity.match){
+    replacedValue = value.split(entity.match).join(entity.val);
+  }else if(entity.regex){
+    replacedValue = value.replace(entity.regex, entity.val);
+  }else if(entity.regx){
+    replacedValue = value.replace(entity.regx, entity.val);
+  }else{
+    throw new Error("Entity replacement pattern is missing");
+  }
+  return replacedValue;
+}
+
 function saveTextToParentTag(textData, currentNode, jPath, isLeafNode) {
   if (textData) { //store previously collected data as textNode
     if(isLeafNode === undefined) isLeafNode = currentNode.child.length === 0
