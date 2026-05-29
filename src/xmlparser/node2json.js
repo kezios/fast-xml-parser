@@ -3,6 +3,20 @@
 import XmlNode from './xmlNode.js';
 
 const METADATA_SYMBOL = XmlNode.getMetaDataSymbol();
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function hasOwn(obj, property){
+  return hasOwnProperty.call(obj, property);
+}
+
+function setProperty(obj, property, value){
+  Object.defineProperty(obj, property, {
+    configurable: true,
+    enumerable: true,
+    value,
+    writable: true,
+  });
+}
 
 /**
  * 
@@ -46,25 +60,25 @@ function compress(arr, options, jPath){
 
       if(tagObj[":@"]){
         assignAttributes( val, tagObj[":@"], newJpath, options);
-      }else if(Object.keys(val).length === 1 && val[options.textNodeName] !== undefined && !options.alwaysCreateTextNode){
+      }else if(Object.keys(val).length === 1 && hasOwn(val, options.textNodeName) && val[options.textNodeName] !== undefined && !options.alwaysCreateTextNode){
         val = val[options.textNodeName];
       }else if(Object.keys(val).length === 0){
-        if(options.alwaysCreateTextNode) val[options.textNodeName] = "";
+        if(options.alwaysCreateTextNode) setProperty(val, options.textNodeName, "");
         else val = "";
       }
 
-      if(compressedObj[property] !== undefined && compressedObj.hasOwnProperty(property)) {
+      if(compressedObj[property] !== undefined && hasOwn(compressedObj, property)) {
         if(!Array.isArray(compressedObj[property])) {
-            compressedObj[property] = [ compressedObj[property] ];
+            setProperty(compressedObj, property, [ compressedObj[property] ]);
         }
         compressedObj[property].push(val);
       }else{
         //TODO: if a node is not an array, then check if it should be an array
         //also determine if it is a leaf node
         if (options.isArray(property, newJpath, isLeaf )) {
-          compressedObj[property] = [val];
+          setProperty(compressedObj, property, [val]);
         }else{
-          compressedObj[property] = val;
+          setProperty(compressedObj, property, val);
         }
       }
     }
@@ -72,8 +86,8 @@ function compress(arr, options, jPath){
   }
   // if(text && text.length > 0) compressedObj[options.textNodeName] = text;
   if(typeof text === "string"){
-    if(text.length > 0) compressedObj[options.textNodeName] = text;
-  }else if(text !== undefined) compressedObj[options.textNodeName] = text;
+    if(text.length > 0) setProperty(compressedObj, options.textNodeName, text);
+  }else if(text !== undefined) setProperty(compressedObj, options.textNodeName, text);
   return compressedObj;
 }
 
@@ -92,9 +106,9 @@ function assignAttributes(obj, attrMap, jpath, options){
     for (let i = 0; i < len; i++) {
       const atrrName = keys[i];
       if (options.isArray(atrrName, jpath + "." + atrrName, true, true)) {
-        obj[atrrName] = [ attrMap[atrrName] ];
+        setProperty(obj, atrrName, [ attrMap[atrrName] ]);
       } else {
-        obj[atrrName] = attrMap[atrrName];
+        setProperty(obj, atrrName, attrMap[atrrName]);
       }
     }
   }
