@@ -42,8 +42,8 @@ export default class EntitiesParser{
         reportWarning(`Entity ${key} is not added as '&' is found in value;`)
         return;
       }else{
-        this.lastEntities[ent] = {
-          regex: new RegExp("&"+key+";","g"),
+        this.lastEntities[key] = {
+          match: getEntityMatch(key),
           val : val
         }
       }
@@ -74,11 +74,11 @@ export default class EntitiesParser{
         if(typeof val === "string" && val.length > 0){
             for(let entityName in this.docTypeEntities){
                 const entity = this.docTypeEntities[entityName];
-                val = val.replace( entity.regx, entity.val);
+                val = replaceEntityValue(val, entity);
               }
               for(let entityName in this.lastEntities){
                 const entity = this.lastEntities[entityName];
-                val = val.replace( entity.regex, entity.val);
+                val = replaceEntityValue(val, entity);
               }
               if(this.replaceHtmlEntities){
                 for(let entityName in htmlEntities){
@@ -102,4 +102,22 @@ function validateEntityName(name){
         if(name.indexOf(ch) !== -1) throw new Error(`Invalid character ${ch} in entity name`);
     }
     return name;
+}
+
+function getEntityMatch(name){
+    return `&${name};`;
+}
+
+function replaceEntityValue(value, entity){
+    let replacedValue;
+    if(entity.match){
+        replacedValue = value.split(entity.match).join(entity.val);
+    }else if(entity.regex){
+        replacedValue = value.replace(entity.regex, entity.val);
+    }else if(entity.regx){
+        replacedValue = value.replace(entity.regx, entity.val);
+    }else{
+        throw new Error("Entity replacement pattern is missing");
+    }
+    return replacedValue;
 }
