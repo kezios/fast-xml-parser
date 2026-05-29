@@ -53,7 +53,7 @@ export default class EntitiesParser{
         for (let i = 0; i < entKeys.length; i++) {
           const ent = entKeys[i];
           this.docTypeEntities[ent] = {
-             regex: new RegExp("&"+ent+";","g"),
+             match: getEntityMatch(ent),
              val : entities[ent]
           }
         }
