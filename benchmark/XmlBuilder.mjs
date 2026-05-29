@@ -40,7 +40,7 @@ suite
         console.log("Error in Suite: " + this.name, e);
     })
     .on("abort", function(e) {
-        console.log("Aborting Suite: " + this.name, e);
+        console.log("Aborting Suite:", this.name, e);
     })
     /*.on('cycle',function(event){
         console.log("Suite ID:" + event.target.id);
