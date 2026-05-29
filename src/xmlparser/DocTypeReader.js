@@ -23,7 +23,7 @@ export default function readDocType(xmlData, i){
                     [entityName, val,i] = readEntityExp(xmlData,i+1);
                     if(val.indexOf("&") === -1) //Parameter entities are not supported
                         entities[ entityName ] = {
-                            regx : RegExp( `&${entityName};`,"g"),
+                            match : getEntityMatch(entityName),
                             val: val
                         };
                 }
@@ -359,6 +359,10 @@ function hasSeq(data, seq,i){
         if(seq[j]!==data[i+j+1]) return false;
     }
     return true;
+}
+
+function getEntityMatch(name){
+    return `&${name};`;
 }
 
 function validateEntityName(name){
