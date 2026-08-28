@@ -18,15 +18,15 @@ jobs:
         node-version: [14.x, 16.x, 18.x, 20.x, 22.x]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1.4.6
       with:
         node-version: ${{ matrix.node-version }}
     - name: Set PUBLISH_PLEASE_DISABLE_PROMPT
       run: echo "PUBLISH_PLEASE_DISABLE_PROMPT=true" >> $GITHUB_ENV
     - run: npm install --ignore-scripts
     - run: npm run test
-    - uses: coverallsapp/github-action@v1.1.1
+    - uses: coverallsapp/github-action@348853a262cc37fa2f8abe2827729d193cbb00dc # v1.1.1
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
