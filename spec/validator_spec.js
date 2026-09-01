@@ -1,16 +1,15 @@
 "use strict";
 
 import fs from "fs";
-import path from "path";
 import {XMLValidator} from "../src/fxp.js";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
-// Get the file URL of the current module
-const __filename = fileURLToPath(import.meta.url);
-
-// Derive the directory name
-const __dirname = dirname(__filename);
+const XML_ASSET_FILES = {
+    "by.svg": new URL("./assets/by.svg", import.meta.url),
+    "complex.xml": new URL("./assets/complex.xml", import.meta.url),
+    "crlf.xml": new URL("./assets/crlf.xml", import.meta.url),
+    "invalid.xml": new URL("./assets/invalid.xml", import.meta.url),
+    "sample.xml": new URL("./assets/sample.xml", import.meta.url),
+};
 
 function validate(xmlData, error, line = 1, col) {
     const result = XMLValidator.validate(xmlData);
@@ -37,8 +36,9 @@ function validate(xmlData, error, line = 1, col) {
 }
 
 function validateFile(fileName, ...args) {
-    const fileNamePath = path.join(__dirname, "assets/" + fileName);
-    validate(fs.readFileSync(fileNamePath).toString(), ...args);
+    const fileUrl = XML_ASSET_FILES[fileName];
+    if (!fileUrl) throw new Error(`Unexpected validator fixture ${fileName}`);
+    validate(fs.readFileSync(fileUrl).toString(), ...args);
 }
 
 describe("XML Validator", function () {
